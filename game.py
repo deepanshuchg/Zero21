@@ -2,7 +2,7 @@ import pygame
 
 # display setup
 pygame.init()
-GAME_WIDTH, GAME_HEIGHT = 393, 700
+GAME_WIDTH, GAME_HEIGHT = 394, 700
 win = pygame.display.set_mode((GAME_WIDTH, GAME_HEIGHT))
 pygame.display.set_caption("Zero21")
 
@@ -10,18 +10,20 @@ pygame.display.set_caption("Zero21")
 
 
 # fonts
-
+NUMBER_FONT = pygame.font.SysFont('comicsans', 40)
 
 # load images
 RED_CARD_IMAGE = pygame.image.load('Assets/RedCard.png')
 BLUE_CARD_IMAGE = pygame.image.load('Assets/BlueCard.png')
+GREEN_CARD_IMAGE = pygame.image.load('Assets/GreenCard.png')
 bg = pygame.image.load('Assets/background.jpeg')
 
 # game variables
-
+score = -10
 
 # colors
 WHITE = (205,219,245)
+BLACK = (0,0,0)
 
 # setup game loop
 FPS = 60
@@ -49,12 +51,17 @@ class BlueCard(object):
 # draw function
 def redraw():
     win.blit(bg, (0,0))
+    #win.fill(WHITE)
     for card in red_cards:
         card.draw(win)
     
     for card in blue_cards:
         card.draw(win)
-
+    
+    win.blit(GREEN_CARD_IMAGE, (GAME_WIDTH/2, 500))
+    text = NUMBER_FONT.render(str(score), 1, WHITE)
+    win.blit(text, (GAME_WIDTH/2 + 5, 520))
+    
     pygame.display.update()
 
 red_cards = []
@@ -80,4 +87,10 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            m_x, m_y = pygame.mouse.get_pos()
+            print(f"{m_x} , {m_y}")
+            for red_card in red_cards:
+                if m_x > red_card.x and m_x < red_card.x + 40 and m_y > red_card.y and m_y < red_card.y + 60:
+                    print("FOUND")
 
