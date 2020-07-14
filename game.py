@@ -116,8 +116,7 @@ while run:
             m_x, m_y = event.pos
             print(f"{m_x} , {m_y}")
             if not in_game:
-                if play_button.get_rect().collidepoint(m_x, m_y):
-                #if m_x > 70 and m_y > 300:
+                if (70 <= m_x <= 300) and (300 <= m_y <= 440):
                     print("ASd")
                     in_game = True
             if in_game:
