@@ -133,7 +133,7 @@ while run:
     redraw()
     
     
-    if score > 21 or score < 0:
+    if score > 20 or score < 1:
         pygame.time.delay(500)
         display_message("Sorry, you lost!")
         break
