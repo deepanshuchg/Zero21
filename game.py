@@ -18,9 +18,11 @@ RED_CARD_IMAGE = pygame.image.load('Assets/RedCard.png')
 BLUE_CARD_IMAGE = pygame.image.load('Assets/BlueCard.png')
 GREEN_CARD_IMAGE = pygame.image.load('Assets/GreenCard.png')
 bg = pygame.image.load('Assets/background.jpeg')
+play_button = pygame.image.load('Assets/PlayButton.png')
 
 # game variables
 score = +10
+in_game = False
 
 # colors
 WHITE = (205,219,245)
@@ -55,29 +57,32 @@ class BlueCard(object):
 def redraw():
     win.blit(bg, (0,0))
     #win.fill(WHITE)
-    for card in red_cards:
-        card.draw(win)
-    
-    for card in blue_cards:
-        card.draw(win)
-    
-    
-    red_num = NUMBER_FONT.render(str(red_cards[-1].num), 1, WHITE)
-    win.blit(red_num, (red_cards[-1].x + 12, red_cards[-1].y + 12))
-    
-    blue_num = NUMBER_FONT.render(str(blue_cards[-1].num), 1, WHITE)
-    win.blit(blue_num, (blue_cards[-1].x + 12, blue_cards[-1].y + 12))
+    if not in_game:
+        win.blit(play_button, (70,300))
+    else:
+        for card in red_cards:
+            card.draw(win)
+        
+        for card in blue_cards:
+            card.draw(win)
+        
+        if len(red_cards) != 0:
+            red_num = NUMBER_FONT.render(str(red_cards[-1].num), 1, WHITE)
+            win.blit(red_num, (red_cards[-1].x + 12, red_cards[-1].y + 12))
+        if len(blue_cards) != 0:
+            blue_num = NUMBER_FONT.render(str(blue_cards[-1].num), 1, WHITE)
+            win.blit(blue_num, (blue_cards[-1].x + 12, blue_cards[-1].y + 12))
 
-    win.blit(GREEN_CARD_IMAGE, (GAME_WIDTH/2, 500))
-    text = NUMBER_FONT.render(str(score), 1, WHITE)
-    win.blit(text, (GAME_WIDTH/2 + 5, 520))
+        win.blit(GREEN_CARD_IMAGE, (GAME_WIDTH/2, 500))
+        text = NUMBER_FONT.render(str(score), 1, WHITE)
+        win.blit(text, (GAME_WIDTH/2 + 5, 520))
     
     pygame.display.update()
 
-def display_message_lost():
-    pygame.time.delay(2000)
+def display_message(message):
+    pygame.time.delay(500)
     win.blit(bg, (0,0))
-    text = WORD_FONT.render("Sorry, you lost!", 1, BLACK)
+    text = WORD_FONT.render(message, 1, BLACK)
     win.blit(text, (30, 300))
     pygame.display.update()
     pygame.time.delay(3000)
@@ -86,7 +91,7 @@ def display_message_lost():
 red_cards = []
 r_x, r_y = 100,300
 for i in range(7):
-    card = RedCard(r_x, r_y, random.randint(-10,10))
+    card = RedCard(r_x, r_y, random.randint(-8,10))
     red_cards.append(card)
     r_x += 10
     r_y += 10
@@ -94,7 +99,7 @@ for i in range(7):
 blue_cards = []
 b_x, b_y = 300,300
 for i in range(7):
-    card = BlueCard(b_x, b_y, random.randint(-10,10))
+    card = BlueCard(b_x, b_y, random.randint(-8,10))
     blue_cards.append(card)
     b_x -= 10
     b_y += 10
@@ -107,22 +112,36 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            m_x, m_y = pygame.mouse.get_pos()
+            #m_x, m_y = pygame.mouse.get_pos()
+            m_x, m_y = event.pos
             print(f"{m_x} , {m_y}")
-            if m_x > red_cards[-1].x and m_x < red_cards[-1].x + 40 and m_y > red_cards[-1].y and m_y < red_cards[-1].y + 60:
-                print("FOUND")
-                score += red_cards[-1].num
-                red_cards.pop()
-            if m_x > blue_cards[-1].x and m_x < blue_cards[-1].x + 40 and m_y > blue_cards[-1].y and m_y < blue_cards[-1].y + 60:
-                print("FOUND")
-                score += blue_cards[-1].num
-                blue_cards.pop()
+            if not in_game:
+                if play_button.get_rect().collidepoint(m_x, m_y):
+                #if m_x > 70 and m_y > 300:
+                    print("ASd")
+                    in_game = True
+            if in_game:
+                if len(red_cards) != 0:
+                    if m_x > red_cards[-1].x and m_x < red_cards[-1].x + 40 and m_y > red_cards[-1].y and m_y < red_cards[-1].y + 60:
+                        score += red_cards[-1].num
+                        red_cards.pop()
+                if len(blue_cards) != 0:
+                    if m_x > blue_cards[-1].x and m_x < blue_cards[-1].x + 40 and m_y > blue_cards[-1].y and m_y < blue_cards[-1].y + 60:
+                        score += blue_cards[-1].num
+                        blue_cards.pop()
+            
 
     redraw()
     
+    
     if score > 21 or score < 0:
-        print("inside if")
-        display_message_lost()
+        pygame.time.delay(500)
+        display_message("Sorry, you lost!")
+        break
+
+    if len(red_cards) == 0 and len(blue_cards) == 0:
+        display_message("Yipee!! You WON!")
         break
                 
 
+pygame.quit()
