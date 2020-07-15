@@ -19,6 +19,7 @@ BLUE_CARD_IMAGE = pygame.image.load('Assets/BlueCard.png')
 GREEN_CARD_IMAGE = pygame.image.load('Assets/GreenCard.png')
 bg = pygame.image.load('Assets/background.jpeg')
 play_button = pygame.image.load('Assets/PlayButton.png')
+hold_card = pygame.image.load('Assets/HoldCard.jpg')
 
 # game variables
 score = +10
@@ -74,6 +75,7 @@ def redraw():
             win.blit(blue_num, (blue_cards[-1].x + 12, blue_cards[-1].y + 12))
 
         win.blit(GREEN_CARD_IMAGE, (GAME_WIDTH/2, 500))
+        win.blit(hold_card, (320,500))
         text = NUMBER_FONT.render(str(score), 1, WHITE)
         win.blit(text, (GAME_WIDTH/2 + 5, 520))
     
@@ -89,7 +91,7 @@ def display_message(message):
 
 
 red_cards = []
-r_x, r_y = 100,300
+r_x, r_y = 95,300
 for i in range(7):
     card = RedCard(r_x, r_y, random.randint(-8,10))
     red_cards.append(card)
@@ -112,12 +114,10 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            #m_x, m_y = pygame.mouse.get_pos()
-            m_x, m_y = event.pos
-            print(f"{m_x} , {m_y}")
+            m_x, m_y = pygame.mouse.get_pos()
+            #print(f"{m_x} , {m_y}")
             if not in_game:
-                if (70 <= m_x <= 300) and (300 <= m_y <= 440):
-                    print("ASd")
+                if play_button.get_rect(topleft = (70,300)).collidepoint(m_x, m_y):
                     in_game = True
             if in_game:
                 if len(red_cards) != 0:
