@@ -12,6 +12,7 @@ pygame.display.set_caption("Zero21")
 # fonts
 NUMBER_FONT = pygame.font.SysFont('comicsans', 40)
 WORD_FONT = pygame.font.SysFont('comicsans', 40)
+TEXT_FONT = pygame.font.SysFont('comicsans',20)
 
 # load images
 RED_CARD_IMAGE = pygame.image.load('Assets/RedCard.png')
@@ -21,9 +22,15 @@ bg = pygame.image.load('Assets/background.jpeg')
 play_button = pygame.image.load('Assets/PlayButton.png')
 hold_card = pygame.image.load('Assets/HoldCard.jpg')
 
+
+hold_x = 320
+hold_y = 500
+
 # game variables
 score = +10
 in_game = False
+hold_status = "empty"
+hold_num = 0
 
 # colors
 WHITE = (205,219,245)
@@ -60,6 +67,10 @@ def redraw():
     #win.fill(WHITE)
     if not in_game:
         win.blit(play_button, (70,300))
+        text = WORD_FONT.render("HOW TO PLAY:", 1, BLACK)
+        win.blit(text, (40,500))
+        text = TEXT_FONT.render("Keep the number between 0 and 21, right click to hold a card", 1, BLACK)
+        win.blit(text, (10,540))
     else:
         for card in red_cards:
             card.draw(win)
@@ -75,9 +86,21 @@ def redraw():
             win.blit(blue_num, (blue_cards[-1].x + 12, blue_cards[-1].y + 12))
 
         win.blit(GREEN_CARD_IMAGE, (GAME_WIDTH/2, 500))
-        win.blit(hold_card, (320,500))
+        
         text = NUMBER_FONT.render(str(score), 1, WHITE)
         win.blit(text, (GAME_WIDTH/2 + 5, 520))
+
+        if hold_status == "empty":
+            win.blit(hold_card, (hold_x,hold_y))
+        elif hold_status == "red":
+            win.blit(RED_CARD_IMAGE, (hold_x, hold_y))
+            hold_text = NUMBER_FONT.render(str(hold_num), 1, WHITE)
+            win.blit(hold_text, (hold_x + 12, hold_y + 12))
+        elif hold_status == "blue":
+            win.blit(BLUE_CARD_IMAGE, (hold_x, hold_y))
+            hold_text = NUMBER_FONT.render(str(hold_num), 1, WHITE)
+            win.blit(hold_text, (hold_x + 12, hold_y + 12))
+        
     
     pygame.display.update()
 
@@ -89,11 +112,15 @@ def display_message(message):
     pygame.display.update()
     pygame.time.delay(3000)
 
+def hold_card_update():
+    win.blit(bg, (0,0))
+    win.blit(RED_CARD_IMAGE, (100,100))
+    pygame.display.update()
 
 red_cards = []
 r_x, r_y = 95,300
 for i in range(7):
-    card = RedCard(r_x, r_y, random.randint(-8,10))
+    card = RedCard(r_x, r_y, random.randint(-8,8))
     red_cards.append(card)
     r_x += 10
     r_y += 10
@@ -101,34 +128,48 @@ for i in range(7):
 blue_cards = []
 b_x, b_y = 300,300
 for i in range(7):
-    card = BlueCard(b_x, b_y, random.randint(-8,10))
+    card = BlueCard(b_x, b_y, random.randint(-8,8))
     blue_cards.append(card)
     b_x -= 10
     b_y += 10
 
+
 while run:
     clock.tick(FPS)
-    
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             m_x, m_y = pygame.mouse.get_pos()
-            #print(f"{m_x} , {m_y}")
             if not in_game:
                 if play_button.get_rect(topleft = (70,300)).collidepoint(m_x, m_y):
                     in_game = True
             if in_game:
                 if len(red_cards) != 0:
-                    if m_x > red_cards[-1].x and m_x < red_cards[-1].x + 40 and m_y > red_cards[-1].y and m_y < red_cards[-1].y + 60:
+                    if RED_CARD_IMAGE.get_rect(topleft = (red_cards[-1].x, red_cards[-1].y)).collidepoint(m_x,m_y):
                         score += red_cards[-1].num
                         red_cards.pop()
                 if len(blue_cards) != 0:
-                    if m_x > blue_cards[-1].x and m_x < blue_cards[-1].x + 40 and m_y > blue_cards[-1].y and m_y < blue_cards[-1].y + 60:
+                    if BLUE_CARD_IMAGE.get_rect(topleft = (blue_cards[-1].x, blue_cards[-1].y)).collidepoint(m_x, m_y):
                         score += blue_cards[-1].num
                         blue_cards.pop()
-            
+                if(hold_status != "empty"):
+                    if RED_CARD_IMAGE.get_rect(topleft = (hold_x, hold_y)).collidepoint(m_x, m_y):
+                        hold_status = "empty"
+                        score += hold_num
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:          # This checks when right click is pressed
+            m_x, m_y = pygame.mouse.get_pos()
+            if in_game:
+                if hold_status == "empty": 
+                    if RED_CARD_IMAGE.get_rect(topleft = (red_cards[-1].x, red_cards[-1].y)).collidepoint(m_x,m_y):
+                        hold_status = "red"
+                        hold_num = red_cards[-1].num
+                        red_cards.pop()
+                        
+                    if BLUE_CARD_IMAGE.get_rect(topleft = (blue_cards[-1].x, blue_cards[-1].y)).collidepoint(m_x,m_y):
+                        hold_status = "blue"
+                        hold_num = blue_cards[-1].num
+                        blue_cards.pop()
 
     redraw()
     
