@@ -21,6 +21,7 @@ GREEN_CARD_IMAGE = pygame.image.load('Assets/GreenCard.png')
 bg = pygame.image.load('Assets/background.jpeg')
 play_button = pygame.image.load('Assets/PlayButton.png')
 hold_card = pygame.image.load('Assets/HoldCard.jpg')
+logo_image = pygame.image.load('Assets/logo.png')
 
 
 hold_x = 320
@@ -66,10 +67,11 @@ def redraw():
     win.blit(bg, (0,0))
     #win.fill(WHITE)
     if not in_game:
+        win.blit(logo_image,(60,80))
         win.blit(play_button, (70,300))
         text = WORD_FONT.render("HOW TO PLAY:", 1, BLACK)
         win.blit(text, (40,500))
-        text = TEXT_FONT.render("Keep the number between 0 and 21, right click to hold a card", 1, BLACK)
+        text = TEXT_FONT.render("Keep the number between 0 and 21, right click to hold a card.", 1, BLACK)
         win.blit(text, (10,540))
     else:
         for card in red_cards:
@@ -160,16 +162,17 @@ while run:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:          # This checks when right click is pressed
             m_x, m_y = pygame.mouse.get_pos()
             if in_game:
-                if hold_status == "empty": 
-                    if RED_CARD_IMAGE.get_rect(topleft = (red_cards[-1].x, red_cards[-1].y)).collidepoint(m_x,m_y):
-                        hold_status = "red"
-                        hold_num = red_cards[-1].num
-                        red_cards.pop()
-                        
-                    if BLUE_CARD_IMAGE.get_rect(topleft = (blue_cards[-1].x, blue_cards[-1].y)).collidepoint(m_x,m_y):
-                        hold_status = "blue"
-                        hold_num = blue_cards[-1].num
-                        blue_cards.pop()
+                if hold_status == "empty":
+                    if len(red_cards) != 0:
+                        if RED_CARD_IMAGE.get_rect(topleft = (red_cards[-1].x, red_cards[-1].y)).collidepoint(m_x,m_y):
+                            hold_status = "red"
+                            hold_num = red_cards[-1].num
+                            red_cards.pop()
+                    if len(blue_cards) != 0:    
+                        if BLUE_CARD_IMAGE.get_rect(topleft = (blue_cards[-1].x, blue_cards[-1].y)).collidepoint(m_x,m_y):
+                            hold_status = "blue"
+                            hold_num = blue_cards[-1].num
+                            blue_cards.pop()
 
     redraw()
     
